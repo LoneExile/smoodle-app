@@ -23,7 +23,7 @@ OPENCC_DATA = data/opencc/TSCharacters.ocd2 \
 	data/opencc/t2s.json
 SPARKLE_FRAMEWORK = Frameworks/Sparkle.framework
 PACKAGE = package/Squirrel.pkg
-DEPS_CHECK = $(RIME_LIBRARY) $(PLUM_DATA) $(OPENCC_DATA) $(SPARKLE_FRAMEWORK)
+DEPS_CHECK = $(RIME_LIBRARY) $(PLUM_DATA) $(OPENCC_DATA)
 
 OPENCC_DATA_OUTPUT = librime/share/opencc/*.*
 PLUM_DATA_OUTPUT = plum/output/*.*
@@ -35,8 +35,16 @@ INSTALL_NAME_TOOL_ARGS = -add_rpath @loader_path/../Frameworks
 
 .PHONY: librime copy-rime-binaries
 
+SMOODLE_LIBRIME_RELEASE ?= https://github.com/LoneExile/librime/releases/download/1.16.0-smoodle.1/librime-1.16.0-smoodle.1-macOS-universal.dylib
+
 $(RIME_LIBRARY):
-	$(MAKE) librime
+	$(MAKE) download-librime
+
+.PHONY: download-librime
+download-librime:
+	mkdir -p lib
+	curl -fsSL -o lib/$(RIME_LIBRARY_FILE_NAME) "$(SMOODLE_LIBRIME_RELEASE)"
+	@echo "✓ downloaded pre-built librime (universal arm64+x86_64)"
 
 $(RIME_DEPS):
 	$(MAKE) -C librime deps
@@ -156,7 +164,7 @@ archive: package package/sign_update
 	bash package/make_archive
 
 DSTROOT = /Library/Input Methods
-SQUIRREL_APP_ROOT = $(DSTROOT)/Squirrel.app
+SQUIRREL_APP_ROOT = $(DSTROOT)/Smoodle.app
 
 .PHONY: permission-check install-debug install-release
 

@@ -1,0 +1,129 @@
+# Rime schema
+# encoding: utf-8
+#
+# smoodle: Thai phonetic input
+# https://github.com/lex/smoodle
+#
+# Type romanized Thai (sawadee, krap), get Thai script (สวัสดี, ครับ).
+
+schema:
+  schema_id: thai_phonetic
+  name: smoodle Thai phonetic
+  version: "0.0.6"
+  author:
+    - lex
+  description: |
+    Type romanized Thai phonetic approximations, get Thai script.
+
+    v0.0.1: ~500 most common Thai words with multiple romanization
+    variants per word. Tone marks live in the Thai output, not input.
+
+    v0.0.2 (algebra spike): speller/algebra rules for phonemic
+    equivalence (aspiration kh~k, ph~p, th~t; vowel length aa~a,
+    ii~i, etc.; final voicing p~b, t~d). Dict carries 1-3 spelling
+    variants per Thai word; algebra fills in the rest (Path A).
+
+    v0.0.3: dict scaled to 2101 Thai words from TNC (Chulalongkorn
+    Thai National Corpus, CC0). Weights are raw TNC frequencies
+    scaled by per-variant LLM quality (q in 70-100). Requires a
+    one-line patch in vendored librime — DictEntryIterator::Peek
+    upstream returns chunks[0] without sorting on first call, so
+    when an algebra-derived spelling shares a syllable with a direct
+    one, the alphabetically-earlier syllable wins position #1
+    regardless of weight (e.g. "yaai"<"yai" → ย้าย out-ranked ใหญ่).
+    Patch calls Sort() once before the first Peek. See docs/RESUME.md.
+
+    v0.0.4: dict expanded to 10257 Thai words / 19468 entries —
+    covers ~65% of the TNC freq>=50 tail (LLM romanization run was
+    paused at 8338/12792 to conserve API quota; the remainder will
+    ship as v0.0.5). Same weight scheme as v0.0.3.
+
+    v0.0.5: 14868 Thai words / 28187 entries — finishes the TNC
+    freq>=50 tail (12767/12792 = 99.8%). 25 words deferred (relay
+    500 on opus-4-7 at the run's tail). Same weight scheme as v0.0.3.
+
+    v0.0.6: 14893 Thai words / 28239 entries — closes the 25-word
+    gap from v0.0.5 (relay recovered). Now 100% of TNC freq>=50.
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ ไทย, ENG ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - table_translator
+  filters:
+    - uniquifier
+
+speller:
+  alphabet: 'abcdefghijklmnopqrstuvwxyz'
+  delimiter: " '"
+  # Algebra rules expand the prism so user input can match dict spellings
+  # via common phonemic equivalences, without enumerating every variant
+  # in the dict. `derive/X/Y/` is additive: dict spelling preserved AND
+  # an alternative with Y substituted for X is accepted at input time.
+  # Reference: terra_pinyin.schema.yaml (Mandarin) and pinyin.yaml's
+  # spelling_correction block ship with Squirrel.
+  algebra:
+    # ===== Aspiration equivalence =====
+    # Thai distinguishes aspirated kh/ph/th from unaspirated k/p/t.
+    # English-speaking typers frequently drop the 'h'. Unanchored:
+    # smoodle uses continuous Latin for multi-syllable words (commit
+    # 4b54bc3), so kh/ph/th can appear anywhere in a word.
+    - derive/kh/k/
+    - derive/ph/p/
+    - derive/th/t/
+
+    # ===== Vowel-length collapsing =====
+    # Thai distinguishes long vowels (aa, ii, oo, uu, ee) from short
+    # (a, i, o, u, e). English typers usually write the short form.
+    - derive/aa/a/
+    - derive/ii/i/
+    - derive/oo/o/
+    - derive/uu/u/
+    - derive/ee/e/
+
+    # ===== Final-consonant voicing alternation =====
+    # Thai final stops are unreleased and ambiguous between voiced/
+    # unvoiced; romanizers split (e.g. khop vs khob for ขอบ).
+    # Both directions so dict can pick either canonical form.
+    - derive/p$/b/
+    - derive/b$/p/
+    - derive/t$/d/
+    - derive/d$/t/
+
+translator:
+  dictionary: thai_phonetic
+  enable_completion: true
+  enable_sentence: false
+  # initial_quality is added to exp(log_weight) for every candidate. With
+  # 1.0 the constant dominates the dynamic range (exp(weight - log(1e8))
+  # is ~1e-3 for weight=10.34 freq), masking frequency differences and
+  # causing ranking ties. 0 lets weights dictate rank.
+  initial_quality: 0
+
+punctuator:
+  import_preset: symbols
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default

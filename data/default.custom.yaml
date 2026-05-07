@@ -1,0 +1,13 @@
+# Patch to register smoodle's Thai phonetic schema in Rime's global schema list.
+# This file is dropped into ~/Library/Rime/ alongside the schema and dict.
+#
+# After dropping these files in, click Squirrel's "Deploy" menu (or run
+# `Rime Deployer` from Squirrel's menu bar icon). The schema list will be
+# rebuilt and `thai_phonetic` will appear in the schema switcher (Ctrl+`).
+
+patch:
+  schema_list:
+    - schema: thai_phonetic
+    - schema: luna_pinyin
+    - schema: luna_pinyin_simp
+    - schema: bopomofo
