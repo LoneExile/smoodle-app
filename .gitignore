@@ -10,6 +10,7 @@ lib/*
 data/opencc/
 data/plum/
 download/
+package/rime/
 package/Squirrel*.pkg
 package/sign/*.pem
 package/test-*
