@@ -103,4 +103,4 @@ echo "  size:   ${size_mb} MB"
 echo "  sha256: ${sha256}"
 echo
 echo "To upload to GitHub Releases:"
-echo "  gh release create v${VERSION} \"${OUT_DMG}\" -t \"Smoodle ${VERSION}\" -R LoneExile/smoodle-app"
+echo "  gh release create ${VERSION} \"${OUT_DMG}\" -t \"Smoodle ${VERSION}\" -R LoneExile/smoodle-app"
