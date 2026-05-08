@@ -20,3 +20,4 @@ package/*.xml
 *~
 .*.swp
 .DS_Store
+dist/
