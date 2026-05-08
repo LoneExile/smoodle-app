@@ -7,19 +7,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Squirrel"
+            "value" : "Smoodle"
           }
         },
-        "zh-Hans" : {
+        "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "鼠须管"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鼠鬚管"
+            "value" : "Smoodle"
           }
         }
       }
@@ -31,88 +25,47 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Squirrel"
+            "value" : "Smoodle"
           }
         },
-        "zh-Hans" : {
+        "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "鼠须管"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鼠鬚管"
+            "value" : "Smoodle"
           }
         }
       }
     },
-    "im.rime.inputmethod.Squirrel" : {
+    "app.smoodle.inputmethod.Smoodle" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Squirrel"
+            "value" : "Smoodle"
           }
         },
-        "zh-Hans" : {
+        "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "鼠须管"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鼠鬚管"
+            "value" : "Smoodle"
           }
         }
       }
     },
-    "im.rime.inputmethod.Squirrel.Hans" : {
+    "app.smoodle.inputmethod.Smoodle.Thai" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Squirrel - Simplified"
+            "value" : "Smoodle Thai"
           }
         },
-        "zh-Hans" : {
+        "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "鼠须管"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鼠须管"
-          }
-        }
-      }
-    },
-    "im.rime.inputmethod.Squirrel.Hant" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Squirrel - Traditional"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鼠鬚管"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鼠鬚管"
+            "value" : "สมูเดิล"
           }
         }
       }
@@ -124,19 +77,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copyleft, RIME Developers"
+            "value" : "Smoodle — Thai phonetic IME built on RIME"
           }
         },
-        "zh-Hans" : {
+        "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "式恕堂 版权所无"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "式恕堂 版權所無"
+            "value" : "สมูเดิล — ป้อนภาษาไทยแบบเสียง"
           }
         }
       }
