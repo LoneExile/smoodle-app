@@ -78,7 +78,7 @@ Uninstall
 2. sudo rm -rf "/Library/Input Methods/Smoodle.app"
 3. rm -rf ~/Library/Rime/Smoodle    # optional: remove user dictionary cache
 
-Source: https://github.com/LoneExile/smoodle-app
+Source: https://github.com/smoodle-type/smoodle-app
 README
 
 # Build DMG
@@ -103,4 +103,4 @@ echo "  size:   ${size_mb} MB"
 echo "  sha256: ${sha256}"
 echo
 echo "To upload to GitHub Releases:"
-echo "  gh release create ${VERSION} \"${OUT_DMG}\" -t \"Smoodle ${VERSION}\" -R LoneExile/smoodle-app"
+echo "  gh release create ${VERSION} \"${OUT_DMG}\" -t \"Smoodle ${VERSION}\" -R smoodle-type/smoodle-app"

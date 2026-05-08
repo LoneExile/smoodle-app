@@ -35,7 +35,7 @@ INSTALL_NAME_TOOL_ARGS = -add_rpath @loader_path/../Frameworks
 
 .PHONY: librime copy-rime-binaries
 
-SMOODLE_LIBRIME_RELEASE ?= https://github.com/LoneExile/librime/releases/download/1.16.0-smoodle.1/librime-1.16.0-smoodle.1-macOS-universal.dylib
+SMOODLE_LIBRIME_RELEASE ?= https://github.com/smoodle-type/librime/releases/download/1.16.0-smoodle.1/librime-1.16.0-smoodle.1-macOS-universal.dylib
 
 $(RIME_LIBRARY):
 	$(MAKE) download-librime
