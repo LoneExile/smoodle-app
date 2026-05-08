@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Squirrel</string>
+	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
 	<string>RimeIcon.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -62,9 +62,9 @@
 	<key>InputMethodConnectionName</key>
 	<string>Smoodle_Connection</string>
 	<key>InputMethodServerControllerClass</key>
-	<string>Squirrel.SquirrelInputController</string>
+	<string>Smoodle.SquirrelInputController</string>
 	<key>InputMethodServerDelegateClass</key>
-	<string>Squirrel.SquirrelInputController</string>
+	<string>Smoodle.SquirrelInputController</string>
 	<key>LSBackgroundOnly</key>
 	<false/>
 	<key>LSUIElement</key>
