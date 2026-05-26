@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Smoodle</title>
+    <description>Thai phonetic input method — auto-update feed for Smoodle.app and Smoodle Config.app.</description>
+    <language>en</language>
+    <link>https://github.com/smoodle-type/smoodle-app</link>
+  </channel>
+</rss>
