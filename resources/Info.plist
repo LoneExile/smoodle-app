@@ -73,5 +73,15 @@
 	<string>NSApplication</string>
 	<key>TICapsLockLanguageSwitchCapable</key>
 	<true/>
+	<key>SUFeedURL</key>
+	<string>https://smoodle-type.github.io/smoodle-app/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>ASxibCNkmQnksziNsCKucvMxQe/rtJXPLsIMBzbOR5Y=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUEnableAutomaticUpdates</key>
+	<false/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>
