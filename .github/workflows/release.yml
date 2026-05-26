@@ -1,0 +1,170 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v0.0.8a*'
+      - 'v0.0.8b*'
+
+jobs:
+  build-dmg:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      ARCHS: 'arm64 x86_64'
+    outputs:
+      dmg_name: ${{ steps.build_dmg.outputs.dmg_name }}
+      dmg_size: ${{ steps.build_dmg.outputs.dmg_size }}
+      dmg_sig: ${{ steps.sign.outputs.dmg_sig }}
+      tag_name: ${{ steps.meta.outputs.tag_name }}
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Tag metadata
+        id: meta
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Build Smoodle.app (universal)
+        run: ./action-build.sh release
+
+      - name: Build DMG
+        id: build_dmg
+        run: |
+          bash package/build-dmg.sh
+          DMG_PATH=$(find dist -name 'Smoodle-*.dmg' -type f | head -1)
+          if [ -z "$DMG_PATH" ]; then
+            echo "ERROR: no DMG produced under dist/"
+            ls -la dist/ 2>&1 || true
+            exit 1
+          fi
+          DMG_NAME=$(basename "$DMG_PATH")
+          DMG_SIZE=$(stat -f %z "$DMG_PATH")
+          echo "dmg_name=$DMG_NAME" >> "$GITHUB_OUTPUT"
+          echo "dmg_path=$DMG_PATH" >> "$GITHUB_OUTPUT"
+          echo "dmg_size=$DMG_SIZE" >> "$GITHUB_OUTPUT"
+
+      - name: Build sign_update tool
+        run: make package/sign_update
+
+      - name: Sign DMG with Sparkle EdDSA
+        id: sign
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          DMG_PATH="${{ steps.build_dmg.outputs.dmg_path }}"
+          if [ -z "$SPARKLE_PRIVATE_KEY" ]; then
+            echo "ERROR: SPARKLE_PRIVATE_KEY secret not set"
+            exit 1
+          fi
+          # Sparkle 2.x: stdin via --ed-key-file - ; -p prints only the signature.
+          SIG=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | package/sign_update --ed-key-file - -p "$DMG_PATH")
+          if [ -z "$SIG" ]; then
+            echo "ERROR: sign_update produced no signature"
+            exit 1
+          fi
+          echo "$SIG" > "$DMG_PATH.sig"
+          # Mask the sig in logs out of caution (it's not secret, but keeps logs clean).
+          echo "::add-mask::$SIG"
+          echo "dmg_sig=$SIG" >> "$GITHUB_OUTPUT"
+
+      - name: Verify DMG structure
+        run: bash package/test-dmg.sh "${{ steps.build_dmg.outputs.dmg_path }}"
+
+      - name: Verify Sparkle synthetic update
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: bash tests/sparkle-update-test.sh "${{ steps.build_dmg.outputs.dmg_path }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOTES_FILE=$(mktemp)
+          echo "Smoodle ${TAG}" > "$NOTES_FILE"
+          echo "" >> "$NOTES_FILE"
+          echo "See https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md for changes." >> "$NOTES_FILE"
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --notes-file "$NOTES_FILE" \
+            "${{ steps.build_dmg.outputs.dmg_path }}" \
+            "${{ steps.build_dmg.outputs.dmg_path }}.sig"
+
+      - name: Upload DMG as workflow artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: smoodle-dmg-${{ steps.meta.outputs.tag_name }}
+          path: |
+            ${{ steps.build_dmg.outputs.dmg_path }}
+            ${{ steps.build_dmg.outputs.dmg_path }}.sig
+          retention-days: 30
+
+  publish-appcast:
+    needs: build-dmg
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          fetch-depth: 1
+
+      - name: Append release entry to appcast.xml
+        env:
+          TAG: ${{ needs.build-dmg.outputs.tag_name }}
+          DMG_NAME: ${{ needs.build-dmg.outputs.dmg_name }}
+          DMG_SIZE: ${{ needs.build-dmg.outputs.dmg_size }}
+          DMG_SIG: ${{ needs.build-dmg.outputs.dmg_sig }}
+          REPO: ${{ github.repository }}
+        run: |
+          DMG_URL="https://github.com/${REPO}/releases/download/${TAG}/${DMG_NAME}"
+          PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
+          VERSION="${TAG#v}"
+
+          if [ ! -f appcast.xml ]; then
+            echo "ERROR: appcast.xml missing on gh-pages (seed via task 12 first)"
+            exit 1
+          fi
+
+          # Build new <item> block in a temp file (printf avoids heredoc
+          # indentation tension with YAML's block scalar rules).
+          ITEM=$(mktemp)
+          {
+            printf '    <item>\n'
+            printf '      <title>%s</title>\n' "$TAG"
+            printf '      <pubDate>%s</pubDate>\n' "$PUB_DATE"
+            printf '      <sparkle:version>%s</sparkle:version>\n' "$VERSION"
+            printf '      <enclosure\n'
+            printf '        url="%s"\n' "$DMG_URL"
+            printf '        length="%s"\n' "$DMG_SIZE"
+            printf '        type="application/octet-stream"\n'
+            printf '        sparkle:edSignature="%s" />\n' "$DMG_SIG"
+            printf '    </item>\n'
+          } > "$ITEM"
+
+          # Insert before </channel>.
+          awk -v itempath="$ITEM" '
+            BEGIN { while ((getline line < itempath) > 0) block = block line ORS }
+            /<\/channel>/ { printf "%s", block; print; next }
+            { print }
+          ' appcast.xml > appcast.xml.new
+          mv appcast.xml.new appcast.xml
+          rm -f "$ITEM"
+
+      - name: Commit + push appcast update
+        env:
+          TAG: ${{ needs.build-dmg.outputs.tag_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          git commit -m "appcast: add ${TAG}"
+          git push origin gh-pages
