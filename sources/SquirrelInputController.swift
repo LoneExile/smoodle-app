@@ -248,6 +248,12 @@ final class SquirrelInputController: IMKInputController {
     logDir.target = self
     let setting = NSMenuItem(title: NSLocalizedString("Settings...", comment: "Menu item"), action: #selector(openRimeFolder), keyEquivalent: "")
     setting.target = self
+    // v0.0.8a: reserve slot for Smoodle Config.app. Disabled until v0.0.8b
+    // ships the second .app bundle; then this item is enabled and its
+    // action is wired to NSWorkspace.openApplication(at:).
+    let openConfig = NSMenuItem(title: NSLocalizedString("Open Smoodle Config…", comment: "Menu item"), action: nil, keyEquivalent: "")
+    openConfig.toolTip = NSLocalizedString("Available in 0.0.8b — drop Smoodle Config.app into /Applications first.", comment: "Tooltip for disabled config item")
+    openConfig.isEnabled = false
     let wiki = NSMenuItem(title: NSLocalizedString("Rime Wiki...", comment: "Menu item"), action: #selector(openWiki), keyEquivalent: "")
     wiki.target = self
     let update = NSMenuItem(title: NSLocalizedString("Check for updates...", comment: "Menu item"), action: #selector(checkForUpdates), keyEquivalent: "")
@@ -258,6 +264,7 @@ final class SquirrelInputController: IMKInputController {
     menu.addItem(sync)
     menu.addItem(logDir)
     menu.addItem(setting)
+    menu.addItem(openConfig)
     menu.addItem(wiki)
     menu.addItem(update)
 
