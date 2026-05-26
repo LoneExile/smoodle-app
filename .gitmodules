@@ -8,3 +8,6 @@
 [submodule "Sparkle"]
 	path = Sparkle
 	url = https://github.com/sparkle-project/Sparkle
+[submodule "vendor/smoodle"]
+	path = vendor/smoodle
+	url = https://github.com/smoodle-type/smoodle.git
