@@ -60,10 +60,16 @@ frameworks_phase_entry() {
 }
 
 add_line() {
-    local search="^[[:space:]]*$(sed 's/\//\\\//g; s/\*/\\*/g' <<< "${1}")\$"
-    sed -i '' "/${search}/a\\
-${2}
-" "${project_file}"
+    # macOS BSD sed -i '' + multi-line `a\` always exits 2 (spurious
+    # "can't read :" error) on current macOS even when the insert
+    # succeeds. Use awk instead — portable across BSD/GNU and exits
+    # cleanly.
+    local pattern="^[[:space:]]*$(sed 's/\*/\\*/g' <<< "${1}")\$"
+    local newline="${2}"
+    awk -v pat="${pattern}" -v line="${newline}" '
+        $0 ~ pat { print; print line; next }
+        { print }
+    ' "${project_file}" > "${project_file}.tmp" && mv -f "${project_file}.tmp" "${project_file}"
 }
 
 add_file() {

@@ -31,12 +31,23 @@ cp -R download/dist librime/
 cp -R download/share/opencc librime/share/
 cp -R download/Sparkle.framework Frameworks/
 
-# skip building librime and opencc-data; use downloaded artifacts
+# skip building librime and opencc-data; use downloaded artifacts.
+# This copies the UPSTREAM librime + tools (rime_deployer, rime_dict_manager)
+# from librime/dist into lib/ + bin/.
 make copy-rime-binaries copy-opencc-data
 
+# v0.0.8a: overwrite the upstream librime.dylib with the smoodle-patched
+# build (peek-sort fix, smoodle-type/librime@1.16.0-smoodle.1). Without
+# this, the bundled dylib is plain upstream librime and the patch never
+# ships. Force re-fetch via Makefile's download-librime target.
+rm -f lib/librime.1.dylib
+make download-librime
+
+SQUIRREL_BUNDLED_RECIPES="${SQUIRREL_BUNDLED_RECIPES:-prelude essay}"
 echo "SQUIRREL_BUNDLED_RECIPES=${SQUIRREL_BUNDLED_RECIPES}"
 
 git submodule update --init plum
-# install Rime recipes
+# install Rime recipes (scoped to prelude+essay by default — the
+# minimum for smoodle. Override via env if other schemas needed.)
 rime_dir=plum/output bash plum/rime-install ${SQUIRREL_BUNDLED_RECIPES}
 make copy-plum-data
