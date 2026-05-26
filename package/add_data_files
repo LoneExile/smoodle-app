@@ -5,10 +5,30 @@ set -e
 project_file=Squirrel.xcodeproj/project.pbxproj
 test -f "${project_file}"
 
-anchor=(80 65 terra_pinyin.schema.yaml)
-anchor_lib=(9D 9A librime-lua.dylib)
+# Anchor must reference a real entry in project.pbxproj. Upstream's
+# terra_pinyin/librime-lua anchors do NOT exist in smoodle-app's pbxproj
+# (terra_pinyin schema was never added; rime-plugins build phase exists
+# but no plugin file refs were ever wired). With a missing anchor, awk
+# in add_line() matches nothing → tmp file is byte-identical → mv is a
+# no-op → "adding X" log message lies. v0.0.8a shipped without
+# default.custom.yaml because of this. Use thai_phonetic.dict.yaml as
+# anchor — it is the latest data/plum entry committed to pbxproj
+# (441E638322B7E96F006DCCDD + 441E638422B7E90C006DCCDD).
+anchor=(83 84 thai_phonetic.dict.yaml)
+anchor_lib=()  # no working anchor; smoodle does not bundle rime plugins (yet)
 
-lastid=80
+lastid=88  # next free 441E63XX id after 83/84/85/86/87/88 (default.custom.yaml)
+
+require_anchor_present() {
+    local file="$1"
+    if ! grep -Fq "/* ${file} in Copy Shared Support Files */" "${project_file}"; then
+        echo "FATAL: anchor file '${file}' missing from ${project_file}" >&2
+        echo "  add_data_files would silently no-op every insert." >&2
+        echo "  Update anchor=(...) in $(basename "$0") to an existing entry." >&2
+        exit 1
+    fi
+}
+require_anchor_present "${anchor[2]}"
 
 obj_entry() {
     local id=$1
@@ -137,13 +157,17 @@ do
     add_file "${file}"
 done
 
-for lib in "${lib_files[@]}"
-do
-    if grep -Fq " ${lib} " "${project_file}"
-    then
-        echo "found ${lib}"
-        continue
-    fi
-    echo "adding ${lib} to ${project_file}"
-    add_lib "${lib}"
-done
+if [ "${#anchor_lib[@]}" -eq 3 ]; then
+    for lib in "${lib_files[@]}"
+    do
+        if grep -Fq " ${lib} " "${project_file}"
+        then
+            echo "found ${lib}"
+            continue
+        fi
+        echo "adding ${lib} to ${project_file}"
+        add_lib "${lib}"
+    done
+else
+    echo "skip lib wiring (anchor_lib disabled — no plugins shipped)"
+fi
