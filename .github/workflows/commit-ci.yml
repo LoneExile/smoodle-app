@@ -22,6 +22,36 @@ jobs:
         run: |
           echo git_ref_name="$(git describe --always)" >> $GITHUB_ENV
 
+      - name: schema-drift-guard
+        run: |
+          set -e
+          # Fail if data/plum/ has any tracked smoodle schema files (they're
+          # gitignored at top-level .gitignore — appearance means someone
+          # added a !negation rule or hand-committed).
+          for f in thai_phonetic.schema.yaml thai_phonetic.dict.yaml default.custom.yaml; do
+            if git ls-files --error-unmatch "data/plum/$f" 2>/dev/null; then
+              echo "DRIFT: data/plum/$f is tracked but should be gitignored"
+              echo "       Run: git rm --cached data/plum/$f && commit"
+              exit 1
+            fi
+          done
+
+          # Fail if data/plum/ on disk diverges from vendor/smoodle/schema/.
+          # No-op pre-build (data/plum/ empty); fires if a post-build hook is
+          # added later.
+          git submodule update --init vendor/smoodle
+          for f in thai_phonetic.schema.yaml thai_phonetic.dict.yaml default.custom.yaml; do
+            src="vendor/smoodle/schema/$f"
+            dst="data/plum/$f"
+            if [ -f "$dst" ] && ! cmp -s "$src" "$dst"; then
+              echo "DRIFT: $dst differs from $src"
+              echo "       action-build.sh should regenerate before this guard runs."
+              exit 1
+            fi
+          done
+
+          echo "schema-drift-guard: OK"
+
       - name: Build Squirrel
         run: ./action-build.sh package
 
