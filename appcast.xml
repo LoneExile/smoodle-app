@@ -5,5 +5,15 @@
     <description>Thai phonetic input method — auto-update feed for Smoodle.app and Smoodle Config.app.</description>
     <language>en</language>
     <link>https://github.com/smoodle-type/smoodle-app</link>
+    <item>
+      <title>v0.0.8a</title>
+      <pubDate>Tue, 26 May 2026 07:54:05 +0000</pubDate>
+      <sparkle:version>0.0.8a</sparkle:version>
+      <enclosure
+        url="https://github.com/smoodle-type/smoodle-app/releases/download/v0.0.8a/Smoodle-v0.0.8a.dmg"
+        length="7310848"
+        type="application/octet-stream"
+        sparkle:edSignature="" />
+    </item>
   </channel>
 </rss>
