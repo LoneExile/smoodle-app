@@ -72,8 +72,10 @@ jobs:
             exit 1
           fi
           echo "$SIG" > "$DMG_PATH.sig"
-          # Mask the sig in logs out of caution (it's not secret, but keeps logs clean).
-          echo "::add-mask::$SIG"
+          # EdDSA signatures are NOT secret — they're published in appcast.xml.
+          # Earlier `::add-mask::` here silently turned the job-output value
+          # into empty when consumed by publish-appcast (GHA known issue with
+          # masked outputs across job boundaries).
           echo "dmg_sig=$SIG" >> "$GITHUB_OUTPUT"
 
       - name: Verify DMG structure
