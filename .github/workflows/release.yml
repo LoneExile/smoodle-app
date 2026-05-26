@@ -10,6 +10,8 @@ jobs:
   build-dmg:
     runs-on: macos-latest
     timeout-minutes: 60
+    permissions:
+      contents: write  # gh release create needs write on releases
     env:
       ARCHS: 'arm64 x86_64'
     outputs:
