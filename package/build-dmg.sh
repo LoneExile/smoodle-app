@@ -47,6 +47,41 @@ mkdir -p "${STAGING}"
 cp -R "${APP_SRC}" "${STAGING}/"
 ln -s "/Library/Input Methods" "${STAGING}/Input Methods"
 
+# v0.0.8b+: bundle Smoodle Config.app alongside Smoodle.app.
+# Asset is published by smoodle/.github/workflows/build-config-app.yml on
+# tag `config-app-v*`. Tag pinned via SMOODLE_CONFIG_APP_TAG env (default:
+# the v0.0.8b release). Setting SMOODLE_CONFIG_APP_TAG=skip disables this
+# block for local-dev DMGs that don't need Config.app.
+CONFIG_APP_TAG="${SMOODLE_CONFIG_APP_TAG:-config-app-v0.0.8b}"
+if [ "${CONFIG_APP_TAG}" = "skip" ]; then
+    echo "  Smoodle Config.app: SKIPPED (SMOODLE_CONFIG_APP_TAG=skip)"
+else
+    echo "  Smoodle Config.app: fetching from smoodle@${CONFIG_APP_TAG}"
+    TMP_TAR="$(mktemp -t smoodle-config-tar.XXXXXX)"
+    trap 'rm -f "${TMP_TAR}"' EXIT
+    if ! gh release download "${CONFIG_APP_TAG}" \
+        --repo smoodle-type/smoodle \
+        --pattern 'Smoodle-Config-*.tar.gz' \
+        --output "${TMP_TAR}" --clobber 2>&1; then
+        echo "ERROR: failed to download Smoodle Config.app tarball for ${CONFIG_APP_TAG}" >&2
+        echo "       Either tag the config-app first, or run with SMOODLE_CONFIG_APP_TAG=skip" >&2
+        exit 1
+    fi
+    tar xzf "${TMP_TAR}" -C "${STAGING}"
+    CONFIG_APP="${STAGING}/Smoodle Config.app"
+    if [ ! -d "${CONFIG_APP}" ]; then
+        echo "ERROR: Smoodle Config.app not present after tar extract" >&2
+        ls -la "${STAGING}" >&2
+        exit 1
+    fi
+    config_bin_name="$(plutil -extract CFBundleExecutable raw "${CONFIG_APP}/Contents/Info.plist")"
+    config_arches=$(lipo -archs "${CONFIG_APP}/Contents/MacOS/${config_bin_name}" 2>/dev/null || echo "")
+    echo "  Smoodle Config arch: ${config_arches}"
+    if ! echo "${config_arches}" | grep -q "x86_64" || ! echo "${config_arches}" | grep -q "arm64"; then
+        echo "WARNING: Smoodle Config.app not universal (${config_arches})" >&2
+    fi
+fi
+
 cat > "${STAGING}/README.txt" <<README
 Smoodle ${VERSION} — Thai phonetic input method for macOS
 ==========================================================
@@ -57,10 +92,17 @@ Install
    (You may be asked for your password — that's macOS authorizing the install
    into /Library/Input Methods.)
 
-2. Open System Settings → Keyboard → Input Sources.
+2. (v0.0.8b+) Drag Smoodle Config.app to /Applications. Optional but
+   recommended — it's the settings GUI for adding custom Thai words,
+   viewing dictionary stats, and toggling telemetry.
+
+3. Open System Settings → Keyboard → Input Sources.
    Click "+", choose Thai → Smoodle, click Add.
 
-3. Switch to Smoodle from the menu bar input picker (or Ctrl+Space).
+4. Switch to Smoodle from the menu bar input picker (or Ctrl+Space).
+
+5. (v0.0.8b+) Click menubar "S" → "Open Smoodle Config…" to launch the
+   settings GUI.
 
 Type
 ----
@@ -76,7 +118,8 @@ Uninstall
 ---------
 1. System Settings → Keyboard → Input Sources → select Smoodle → click "−"
 2. sudo rm -rf "/Library/Input Methods/Smoodle.app"
-3. rm -rf ~/Library/Rime/Smoodle    # optional: remove user dictionary cache
+3. rm -rf "/Applications/Smoodle Config.app"   # if installed
+4. rm -rf ~/Library/Rime/Smoodle    # optional: remove user dictionary cache
 
 Source: https://github.com/smoodle-type/smoodle-app
 README
