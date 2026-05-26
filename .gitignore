@@ -14,6 +14,7 @@ package/rime/
 package/Squirrel*.pkg
 package/sign/*.pem
 package/test-*
+!package/test-dmg.sh
 package/generate_keys
 package/sign_update
 package/*.xml
