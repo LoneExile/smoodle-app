@@ -45,5 +45,15 @@
         type="application/octet-stream"
         sparkle:edSignature="8XtxAvv6eviCYYMZRtOvuwqgJ601r3ylMghSzaN2g+T9ceJqFwijZVjzdBkoybl7MRDl4G+FioYl9sX+LCd+BA==" />
     </item>
+    <item>
+      <title>v0.0.8b.2</title>
+      <pubDate>Wed, 27 May 2026 07:14:48 +0000</pubDate>
+      <sparkle:version>0.0.8b.2</sparkle:version>
+      <enclosure
+        url="https://github.com/smoodle-type/smoodle-app/releases/download/v0.0.8b.2/Smoodle-v0.0.8b.2.dmg"
+        length="18937238"
+        type="application/octet-stream"
+        sparkle:edSignature="BB1azUCRGoVc/tX+XMLD41QcKOhChKJ7J/H54BOn+ghDvnAYavXMb4E2fKxV0UqEGGc2LQpAMYaJyeLtL5VeCw==" />
+    </item>
   </channel>
 </rss>
