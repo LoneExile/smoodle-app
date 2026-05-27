@@ -24,6 +24,25 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
   func applicationWillFinishLaunching(_ notification: Notification) {
     panel = SquirrelPanel(position: .zero)
     addObservers()
+
+    // v0.0.8b: Apple Event handler for «event RimeRdpl» — triggered by
+    // Smoodle Config.app via `osascript -e 'tell application "Smoodle"
+    // to «event RimeRdpl»'`. Handler runs same deploy() code path as
+    // the menubar Deploy item.
+    NSAppleEventManager.shared().setEventHandler(
+      self,
+      andSelector: #selector(handleDeployEvent(_:withReplyEvent:)),
+      forEventClass: AEEventClass(0x52696D65),  // 'Rime'
+      andEventID: AEEventID(0x5264706C)         // 'Rdpl'
+    )
+  }
+
+  @objc func handleDeployEvent(_ event: NSAppleEventDescriptor, withReplyEvent reply: NSAppleEventDescriptor) {
+    self.deploy()
+    reply.setDescriptor(
+      NSAppleEventDescriptor(string: "OK"),
+      forKeyword: AEKeyword(keyDirectObject)
+    )
   }
 
   func applicationWillTerminate(_ notification: Notification) {
@@ -59,6 +78,16 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
 
   func openWiki() {
     NSWorkspace.shared.open(Self.rimeWikiURL)
+  }
+
+  func openSmoodleConfig() {
+    let url = URL(fileURLWithPath: "/Applications/Smoodle Config.app")
+    NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) { _, error in
+      if let error = error {
+        print("Failed to open Smoodle Config.app: \(error.localizedDescription)")
+        // v0.0.9 candidate: user-facing notification if Config.app missing.
+      }
+    }
   }
 
   static func showMessage(msgText: String?) {

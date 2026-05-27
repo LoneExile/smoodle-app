@@ -248,12 +248,11 @@ final class SquirrelInputController: IMKInputController {
     logDir.target = self
     let setting = NSMenuItem(title: NSLocalizedString("Settings...", comment: "Menu item"), action: #selector(openRimeFolder), keyEquivalent: "")
     setting.target = self
-    // v0.0.8a: reserve slot for Smoodle Config.app. Disabled until v0.0.8b
-    // ships the second .app bundle; then this item is enabled and its
-    // action is wired to NSWorkspace.openApplication(at:).
-    let openConfig = NSMenuItem(title: NSLocalizedString("Open Smoodle Config…", comment: "Menu item"), action: nil, keyEquivalent: "")
-    openConfig.toolTip = NSLocalizedString("Available in 0.0.8b — drop Smoodle Config.app into /Applications first.", comment: "Tooltip for disabled config item")
-    openConfig.isEnabled = false
+    // v0.0.8b: enabled. Action launches /Applications/Smoodle Config.app via
+    // NSWorkspace.openApplication. If the user hasn't drag-installed it from
+    // the DMG yet, the handler logs an error (UX improvement deferred to v0.0.9).
+    let openConfig = NSMenuItem(title: NSLocalizedString("Open Smoodle Config…", comment: "Menu item"), action: #selector(openSmoodleConfig), keyEquivalent: "")
+    openConfig.target = self
     let wiki = NSMenuItem(title: NSLocalizedString("Rime Wiki...", comment: "Menu item"), action: #selector(openWiki), keyEquivalent: "")
     wiki.target = self
     let update = NSMenuItem(title: NSLocalizedString("Check for updates...", comment: "Menu item"), action: #selector(checkForUpdates), keyEquivalent: "")
@@ -293,6 +292,10 @@ final class SquirrelInputController: IMKInputController {
 
   @objc func openWiki() {
     NSApp.squirrelAppDelegate.openWiki()
+  }
+
+  @objc func openSmoodleConfig() {
+    NSApp.squirrelAppDelegate.openSmoodleConfig()
   }
 
   deinit {
