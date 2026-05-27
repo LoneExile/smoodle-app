@@ -46,6 +46,9 @@ rm -rf "${STAGING}"
 mkdir -p "${STAGING}"
 cp -R "${APP_SRC}" "${STAGING}/"
 ln -s "/Library/Input Methods" "${STAGING}/Input Methods"
+# v0.0.8b.2: /Applications shortcut so user can drag Smoodle Config.app
+# without opening a separate Finder window.
+ln -s "/Applications" "${STAGING}/Applications"
 
 # v0.0.8b+: bundle Smoodle Config.app alongside Smoodle.app.
 # Asset is published by smoodle/.github/workflows/build-config-app.yml on
@@ -92,9 +95,10 @@ Install
    (You may be asked for your password — that's macOS authorizing the install
    into /Library/Input Methods.)
 
-2. (v0.0.8b+) Drag Smoodle Config.app to /Applications. Optional but
-   recommended — it's the settings GUI for adding custom Thai words,
-   viewing dictionary stats, and toggling telemetry.
+2. (v0.0.8b+) Drag Smoodle Config.app onto the "Applications" folder
+   shortcut in this DMG. Optional but recommended — it's the settings
+   GUI for adding custom Thai words, viewing dictionary stats, and
+   toggling telemetry.
 
 3. Open System Settings → Keyboard → Input Sources.
    Click "+", choose Thai → Smoodle, click Add.
