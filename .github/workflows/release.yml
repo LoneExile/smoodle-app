@@ -38,6 +38,12 @@ jobs:
 
       - name: Build DMG
         id: build_dmg
+        env:
+          # v0.0.8b+: build-dmg.sh runs `gh release download` to fetch
+          # Smoodle Config.app from the smoodle repo. GH_TOKEN must be
+          # set explicitly on this step — GitHub Actions does NOT inherit
+          # secrets.GITHUB_TOKEN as GH_TOKEN by default.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           bash package/build-dmg.sh
           DMG_PATH=$(find dist -name 'Smoodle-*.dmg' -type f | head -1)
