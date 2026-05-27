@@ -114,8 +114,47 @@ if [ "$VERSION" != "0.0.8a" ]; then
 fi
 echo "  ✓ sparkle:version = 0.0.8a"
 
+# 6. v0.0.8b.1 CRITICAL guard: verify Sparkle.framework is actually bundled
+#    into the shipped DMG. v0.0.8a/8a.1/8b shipped with SUFeedURL + SUPublicEDKey
+#    in Info.plist but NO Sparkle code linked — auto-update non-functional.
+#    Detected via Mac local smoke 2026-05-27.
+echo
+echo "Verifying Sparkle.framework presence in DMG..."
+MOUNT_POINT=$(hdiutil attach "$DMG" -nobrowse -noverify | tail -1 | awk -F'\t' '{print $NF}' | sed 's/^ *//')
+if [ -z "$MOUNT_POINT" ] || [ ! -d "$MOUNT_POINT" ]; then
+  echo "FAIL: could not mount DMG"
+  exit 1
+fi
+trap "hdiutil detach '$MOUNT_POINT' >/dev/null 2>&1 || true; rm -rf '$WORKDIR'" EXIT
+
+SMOODLE_APP="$MOUNT_POINT/Smoodle.app"
+SPARKLE_FW="$SMOODLE_APP/Contents/Frameworks/Sparkle.framework"
+SMOODLE_BIN="$SMOODLE_APP/Contents/MacOS/Smoodle"
+
+if [ ! -d "$SPARKLE_FW" ]; then
+  echo "FAIL: Sparkle.framework MISSING from $SMOODLE_APP/Contents/Frameworks/"
+  echo "      (v0.0.8a/8a.1/8b regression — Squirrel.xcodeproj never linked it)"
+  ls -la "$SMOODLE_APP/Contents/Frameworks/" 2>&1 || true
+  exit 1
+fi
+echo "  ✓ Sparkle.framework present in app bundle"
+
+if ! otool -L "$SMOODLE_BIN" 2>/dev/null | grep -q "Sparkle.framework"; then
+  echo "FAIL: Smoodle binary not linked against Sparkle.framework"
+  echo "      otool -L output:"
+  otool -L "$SMOODLE_BIN" | head -10
+  exit 1
+fi
+echo "  ✓ Smoodle binary links Sparkle.framework"
+
+if ! nm "$SMOODLE_BIN" 2>/dev/null | grep -qE "(SPUUpdater|SUUpdater)"; then
+  echo "FAIL: Smoodle binary has no Sparkle updater symbols"
+  exit 1
+fi
+echo "  ✓ Smoodle binary contains Sparkle updater symbols"
+
 echo
 echo "=== ALL SPARKLE CHECKS PASS ==="
-echo "Note: this is a synthetic offline test. Real-world update prompt UX"
-echo "      requires a running Smoodle.app instance and a network appcast"
-echo "      — covered by manual founder smoke test (task 14)."
+echo "Note: this is an offline test. Real-world update prompt UX still requires"
+echo "      a running Smoodle.app instance + network appcast — covered by"
+echo "      manual founder smoke test (tests/manual/v0.0.8b-e2e.md)."

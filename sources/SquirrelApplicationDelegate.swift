@@ -7,6 +7,7 @@
 
 import UserNotifications
 import AppKit
+import Sparkle
 
 final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
   static let rimeWikiURL = URL(string: "https://github.com/rime/home/wiki")!
@@ -16,6 +17,15 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
   var config: SquirrelConfig?
   var panel: SquirrelPanel?
   var enableNotifications = false
+
+  // v0.0.8b.1: Sparkle auto-update. startingUpdater:true kicks off the
+  // background scheduler (24h check by default; reads SUFeedURL +
+  // SUPublicEDKey from Info.plist).
+  private lazy var updaterController = SPUStandardUpdaterController(
+    startingUpdater: true,
+    updaterDelegate: nil,
+    userDriverDelegate: nil
+  )
 
   func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
     completionHandler()
@@ -35,6 +45,12 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
       forEventClass: AEEventClass(0x52696D65),  // 'Rime'
       andEventID: AEEventID(0x5264706C)         // 'Rdpl'
     )
+
+    // v0.0.8b.1: instantiate the Sparkle updater controller. Lazy property
+    // initializer runs on first reference; touching it here forces it now
+    // so the scheduled-update timer is armed during normal startup, not
+    // only when the user clicks "Check for Updates".
+    _ = updaterController
   }
 
   @objc func handleDeployEvent(_ event: NSAppleEventDescriptor, withReplyEvent reply: NSAppleEventDescriptor) {
@@ -73,7 +89,7 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
   }
 
   func checkForUpdates() {
-    print("Auto-update not available in Smoodle")
+    updaterController.checkForUpdates(nil)
   }
 
   func openWiki() {

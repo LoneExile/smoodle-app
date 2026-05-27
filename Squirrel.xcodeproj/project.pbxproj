@@ -18,6 +18,8 @@
 		44AEBC7521F569FD00344375 /* key_bindings.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 44AEBC7221F569CF00344375 /* key_bindings.yaml */; };
 		44AEBC7621F569FD00344375 /* punctuation.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 44AEBC7121F569CF00344375 /* punctuation.yaml */; };
 		44CD640C15E2646B0021234E /* librime.1.dylib in Copy 3rd-party Frameworks */ = {isa = PBXBuildFile; fileRef = 44CD640915E2633D0021234E /* librime.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4459A5B1ED0B0001000000A1 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4459A5B1ED0B0003000000A3 /* Sparkle.framework */; };
+		4459A5B1ED0B0002000000A2 /* Sparkle.framework in Copy 3rd-party Frameworks */ = {isa = PBXBuildFile; fileRef = 4459A5B1ED0B0003000000A3 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		77AA68142588916F00A592E2 /* hk2s.json in Copy opencc Files */ = {isa = PBXBuildFile; fileRef = 77AA67E22588916300A592E2 /* hk2s.json */; };
 		77AA68152588916F00A592E2 /* HKVariants.ocd2 in Copy opencc Files */ = {isa = PBXBuildFile; fileRef = 77AA67DC2588916300A592E2 /* HKVariants.ocd2 */; };
 		77AA68162588916F00A592E2 /* HKVariantsRev.ocd2 in Copy opencc Files */ = {isa = PBXBuildFile; fileRef = 77AA67E02588916300A592E2 /* HKVariantsRev.ocd2 */; };
@@ -153,6 +155,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				44CD640C15E2646B0021234E /* librime.1.dylib in Copy 3rd-party Frameworks */,
+				4459A5B1ED0B0002000000A2 /* Sparkle.framework in Copy 3rd-party Frameworks */,
 			);
 			name = "Copy 3rd-party Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,6 +177,7 @@
 		44AEBC7121F569CF00344375 /* punctuation.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = punctuation.yaml; path = data/plum/punctuation.yaml; sourceTree = "<group>"; };
 		44AEBC7221F569CF00344375 /* key_bindings.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = key_bindings.yaml; path = data/plum/key_bindings.yaml; sourceTree = "<group>"; };
 		44CD640915E2633D0021234E /* librime.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = librime.1.dylib; path = lib/librime.1.dylib; sourceTree = "<group>"; };
+		4459A5B1ED0B0003000000A3 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Frameworks/Sparkle.framework; sourceTree = "<group>"; };
 		44F1EB381431F8270015FD04 /* Squirrel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squirrel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		77AA67DC2588916300A592E2 /* HKVariants.ocd2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = HKVariants.ocd2; sourceTree = "<group>"; };
 		77AA67DD2588916300A592E2 /* t2s.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = t2s.json; sourceTree = "<group>"; };
@@ -237,6 +241,7 @@
 				D26434552706A15100857391 /* QuartzCore.framework in Frameworks */,
 				F45E005F2B8CA81C00179B75 /* UserNotifications.framework in Frameworks */,
 				E93074B70A5C264700470842 /* InputMethodKit.framework in Frameworks */,
+				4459A5B1ED0B0001000000A1 /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,6 +270,7 @@
 			isa = PBXGroup;
 			children = (
 				44CD640915E2633D0021234E /* librime.1.dylib */,
+				4459A5B1ED0B0003000000A3 /* Sparkle.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -512,7 +518,7 @@
 				CODE_SIGN_ENTITLEMENTS = resources/Squirrel.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 0.0.8b;
+				CURRENT_PROJECT_VERSION = 0.0.8b.1;
 				DEAD_CODE_STRIPPING = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -568,7 +574,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = resources/Squirrel.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0.0.8b;
+				CURRENT_PROJECT_VERSION = 0.0.8b.1;
 				DEAD_CODE_STRIPPING = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
